@@ -10,6 +10,7 @@ export default {
     }
 
     return env.ASSETS.fetch(request);
+  }
 };
 
 async function handleSummary(request, env) {

@@ -106,17 +106,6 @@ footer#trail span.current{color:var(--accent);}
 </div>
 
 <script>
-const DATA = {
-  filosofia:["El ser y la nada","¿Qué es la verdad?","La duda como método","El eterno retorno","Conócete a ti mismo","La libertad radical","El absurdo de existir","La voluntad de crear","Ser o no ser","El mito de la caverna"],
-  arte:["El color como emoción","Belleza imperfecta","La forma sigue al sentir","Arte y caos","El lienzo en blanco","La luz en la sombra","Improvisación pura","El detalle invisible","Simetría rota","La obra inacabada"],
-  ciencia:["El efecto mariposa","La entropía del universo","Materia oscura","El origen del cosmos","Evolución constante","La curiosidad como motor","El método científico","Partículas cuánticas","Vida en otros mundos","El código genético"],
-  marketing:["Contar una historia","El poder de la marca","Menos es más","Conectar antes de vender","La primera impresión","Diseñar la experiencia","El cliente en el centro","Simplicidad que vende","Confianza como moneda","Ideas que se pegan"],
-  negocios:["Resolver un problema real","El riesgo calculado","Crecer con propósito","La ejecución importa","Pensar en grande","Fallar rápido, aprender rápido","El valor antes que el precio","Construir con constancia","Rodearte de los mejores","La paciencia estratégica"],
-  deportes:["La disciplina diaria","Superar el propio límite","El equipo sobre el yo","Perder para mejorar","La mente antes que el cuerpo","Constancia silenciosa","El último esfuerzo","Jugar con estrategia","Respirar y enfocar","La victoria se entrena"],
-  vida_sana:["Dormir es sanar","Menos ruido, más calma","Moverse cada día","Comer con conciencia","El silencio como descanso","Hidratarse con intención","Respirar profundo","Gratitud diaria","Caminar para pensar","Equilibrio, no perfección"],
-  tecnologia:["La inteligencia distribuida","Automatizar lo repetitivo","El futuro ya llegó","Datos que enseñan","Innovar con propósito","Lo simple escala","Conectar mundos digitales","Aprender de las máquinas","El código como lenguaje","Diseñar el mañana"]
-};
-const cats = Object.keys(DATA);
 const orbitEl = document.getElementById('orbit');
 const centerEl = document.getElementById('center');
 const centerText = document.getElementById('centerText');
@@ -127,66 +116,85 @@ const modalTitle = document.getElementById('modalTitle');
 const modalBody = document.getElementById('modalBody');
 const modalClose = document.getElementById('modalClose');
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let tags = [], path = [], rot = 0;
-
-function shuffle(arr){return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);}
-
-function pickPhrases(category, count){
-  let pool = [];
-  if(category){
-    const sameCount = Math.ceil(count*0.65);
-    pool = shuffle(DATA[category]).slice(0, sameCount).map(p=>({text:p, cat:category}));
-    const others = shuffle(cats.filter(c=>c!==category));
-    for(let i=pool.length;i<count;i++){
-      const c = others[i % others.length];
-      pool.push({text: shuffle(DATA[c])[0], cat:c});
-    }
-  } else {
-    pool = shuffle(cats).map(c=>({text: shuffle(DATA[c])[0], cat:c})).slice(0,count);
-  }
-  return shuffle(pool);
-}
+let tags = [], path = [], rot = 0, loading = false;
 
 function clearTags(){
   tags.forEach(t=>{ t.el.classList.remove('in'); setTimeout(()=>t.el.remove(), 500); });
   tags = [];
 }
 
-function renderTags(category, excludeText){
+async function fetchTags(context){
+  const res = await fetch('/openrouter-tags', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ context })
+  });
+  if(!res.ok) throw new Error('request failed');
+  const data = await res.json();
+  return data.tags;
+}
+
+async function renderTags(context, excludeText){
+  if(loading) return;
+  loading = true;
   clearTags();
-  const count = 6 + Math.floor(Math.random()*2);
+  let phrases = null;
+  try{
+    phrases = await fetchTags(context);
+  }catch(err){
+    phrases = null;
+  }
+  loading = false;
+  if(!phrases || phrases.length===0){
+    renderRetry(context, excludeText);
+    return;
+  }
+  phrases = phrases.filter(p=>p!==excludeText);
   const radius = window.innerWidth < 480 ? 105 : 150;
-  const phrases = pickPhrases(category, count+1).filter(p=>p.text!==excludeText).slice(0,count);
-  phrases.forEach((p,i)=>{
+  phrases.forEach((text,i)=>{
     const angle = (360/phrases.length)*i + (Math.random()*18-9);
     const el = document.createElement('div');
     el.className = 'tag';
-    el.textContent = p.text;
+    el.textContent = text;
     el.tabIndex = 0;
     el.setAttribute('role','button');
     orbitEl.appendChild(el);
     tags.push({el, angle, radius: radius + (Math.random()*18-9)});
     requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
-    attachTagEvents(el, p.text, p.cat);
+    attachTagEvents(el, text);
   });
 }
 
-function attachTagEvents(el, text, cat){
+function renderRetry(context, excludeText){
+  const el = document.createElement('div');
+  el.className = 'tag';
+  el.textContent = 'Reintentar';
+  el.tabIndex = 0;
+  el.setAttribute('role','button');
+  orbitEl.appendChild(el);
+  tags.push({el, angle:-90, radius:130});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
+  const retry = ()=>renderTags(context, excludeText);
+  el.addEventListener('pointerup', retry);
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); retry(); } });
+}
+
+function attachTagEvents(el, text){
   let pressTimer = null, longPressed = false;
   const startPress = ()=>{
     longPressed = false;
-    pressTimer = setTimeout(()=>{ longPressed = true; openSummary(text, cat); }, 480);
+    pressTimer = setTimeout(()=>{ longPressed = true; openSummary(text); }, 480);
   };
   const cancelPress = ()=> clearTimeout(pressTimer);
   el.addEventListener('pointerdown', startPress);
   el.addEventListener('pointerup', ()=>{
     clearTimeout(pressTimer);
-    if(!longPressed) selectTag(text, cat);
+    if(!longPressed) selectTag(text);
   });
   el.addEventListener('pointerleave', cancelPress);
   el.addEventListener('pointercancel', cancelPress);
   el.addEventListener('contextmenu', e=>e.preventDefault());
-  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectTag(text, cat); } });
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectTag(text); } });
 }
 
 function pulseCenter(){
@@ -211,13 +219,13 @@ function renderTrail(){
   trailEl.scrollLeft = trailEl.scrollWidth;
 }
 
-function selectTag(text, cat){
+function selectTag(text){
   path.push(text);
   pulseCenter();
   centerText.classList.remove('flicker');
   centerText.textContent = text;
   renderTrail();
-  renderTags(cat, text);
+  renderTags(text, text);
 }
 
 function start(){
@@ -252,17 +260,28 @@ async function fetchSummary(topic, category){
   return data.summary;
 }
 
-async function openSummary(text, cat){
+async function fetchSummary(topic){
+  const res = await fetch('/openrouter-summary', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ topic })
+  });
+  if(!res.ok) throw new Error('request failed');
+  const data = await res.json();
+  return data.summary;
+}
+
+async function openSummary(text){
   modalTitle.textContent = text;
   modalBody.textContent = 'Profundizando…';
   modalBody.classList.add('flicker');
   overlay.classList.remove('hidden');
   modalClose.focus();
   try{
-    const summary = await fetchSummary(text, cat);
+    const summary = await fetchSummary(text);
     modalBody.textContent = summary;
   }catch(err){
-    modalBody.textContent = 'No se pudo generar el resumen. Verificá que la función de Netlify y la variable OPENROUTER_API_KEY estén configuradas.';
+    modalBody.textContent = 'No se pudo generar el resumen. Probá de nuevo en unos segundos.';
   }
   modalBody.classList.remove('flicker');
 }

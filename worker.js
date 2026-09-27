@@ -34,7 +34,7 @@ async function handleSummary(request, env) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openrouter/free',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: [
           {
             role: 'system',
@@ -88,7 +88,7 @@ async function handleTags(request, env) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openrouter/free',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: [
           {
             role: 'system',

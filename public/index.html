@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PulseThink</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4efe4; --bg2:#efe6d4; --fg:#2a241c; --muted:#8a8272;
+  --accent:#c98a3a; --tag-bg:rgba(0,0,0,.05); --tag-bg-hover:rgba(0,0,0,.09); --tag-fg:#3a3225;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0e1a; --bg2:#161327; --fg:#efe9d8; --muted:#8f8a78;
+    --accent:#e8b96a; --tag-bg:rgba(255,255,255,.06); --tag-bg-hover:rgba(255,255,255,.11); --tag-fg:#efe9d8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c0e1a; --bg2:#161327; --fg:#efe9d8; --muted:#8f8a78;
+  --accent:#e8b96a; --tag-bg:rgba(255,255,255,.06); --tag-bg-hover:rgba(255,255,255,.11); --tag-fg:#efe9d8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{background:radial-gradient(circle at 50% 42%, var(--bg2), var(--bg) 72%);color:var(--fg);
+  font-family:'Lora', Georgia, 'Times New Roman', serif; overflow:hidden;}
+#app{height:100%;display:flex;flex-direction:column;}
+header{display:flex;justify-content:space-between;align-items:center;
+  padding:1.3rem 1.5rem;padding-top:calc(1.3rem + env(safe-area-inset-top,0px));}
+h1{font-family:'Fraunces', Georgia, 'Times New Roman', serif;font-weight:500;font-style:italic;
+  font-size:1.1rem;margin:0;opacity:.82;}
+#resetBtn{background:none;border:1px solid var(--tag-bg-hover);color:var(--muted);
+  width:2.1rem;height:2.1rem;border-radius:50%;font-size:1rem;cursor:pointer;line-height:1;}
+#resetBtn:hover{color:var(--accent);}
+#resetBtn:focus-visible,#center:focus-visible,.tag:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+main#stage{flex:1;position:relative;}
+#center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:7.4rem;height:7.4rem;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:5;}
+.glowWrap{position:absolute;inset:-1.4rem;}
+.blob{position:absolute;inset:0;background:radial-gradient(circle, var(--accent), transparent 68%);
+  filter:blur(15px);opacity:.45;animation:blobPulse 6.5s ease-in-out infinite;
+  border-radius:42% 58% 63% 37% / 41% 44% 56% 59%;}
+.blob.b2{border-radius:60% 40% 38% 62% / 55% 60% 40% 45%;animation-delay:-2.2s;}
+.blob.b3{border-radius:50% 50% 34% 66% / 62% 38% 62% 38%;animation-delay:-4.4s;}
+@keyframes blobPulse{0%,100%{transform:scale(1) rotate(0deg);opacity:.35;}50%{transform:scale(1.3) rotate(18deg);opacity:.6;}}
+#center.pulsing .blob{animation:blobBurst .6s ease-out;}
+@keyframes blobBurst{0%{transform:scale(1);opacity:.6;}100%{transform:scale(2.3);opacity:0;}}
+#centerText{position:relative;z-index:2;font-family:'Fraunces',Georgia,serif;font-size:.98rem;
+  text-align:center;padding:0 .7rem;line-height:1.2;}
+#centerText.flicker{animation:flicker 3.6s linear infinite;}
+@keyframes flicker{0%,19%,21%,23%,54%,56%,100%{opacity:1;}20%,22%,55%{opacity:.3;}}
+#orbit{position:absolute;top:50%;left:50%;width:0;height:0;}
+.tag{position:absolute;top:0;left:0;transform:translate(-50%,-50%);max-width:9.5rem;
+  padding:.45rem .85rem;border:none;background:var(--tag-bg);color:var(--tag-fg);
+  border-radius:999px;font-size:.83rem;text-align:center;line-height:1.15;cursor:pointer;
+  opacity:0;transition:opacity .5s, background .2s, color .2s;
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
+.tag.in{opacity:1;}
+.tag.out{opacity:0;}
+.tag:hover{background:var(--tag-bg-hover);color:var(--accent);}
+.tag:active{opacity:.75;}
+footer#trail{padding:.85rem 1.5rem;padding-bottom:calc(.85rem + env(safe-area-inset-bottom,0px));
+  display:flex;gap:.5rem;overflow-x:auto;font-size:.72rem;color:var(--muted);white-space:nowrap;}
+footer#trail span.current{color:var(--accent);}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;
+  justify-content:center;padding:1.5rem;z-index:50;opacity:1;transition:opacity .25s;}
+#overlay.hidden{opacity:0;pointer-events:none;}
+#modal{background:var(--bg2);color:var(--fg);border-radius:1rem;max-width:26rem;width:100%;
+  padding:1.6rem;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+#modalClose{position:absolute;top:.7rem;right:.8rem;background:none;border:none;color:var(--muted);
+  font-size:1.3rem;cursor:pointer;line-height:1;}
+#modalTitle{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:1.2rem;
+  margin:0 0 .8rem;padding-right:1.5rem;}
+#modalBody{font-size:.92rem;line-height:1.55;opacity:.92;min-height:2.5rem;}
+#modalBody.flicker{animation:flicker 1.4s linear infinite;}
+@media (prefers-reduced-motion: reduce){.blob{animation:none;} #centerText.flicker,#modalBody.flicker{animation:none;}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>PulseThink</h1>
+    <button id="resetBtn" aria-label="Reiniciar">↺</button>
+  </header>
+  <main id="stage">
+    <div id="center" role="button" tabindex="0" aria-label="Pulsar para comenzar">
+      <div class="glowWrap"><div class="blob"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+      <span id="centerText" class="flicker">Pulsá</span>
+    </div>
+    <div id="orbit"></div>
+  </main>
+  <footer id="trail" aria-label="Camino recorrido"></footer>
+</div>
+
+<div id="overlay" class="hidden">
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button id="modalClose" aria-label="Cerrar">×</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  filosofia:["El ser y la nada","¿Qué es la verdad?","La duda como método","El eterno retorno","Conócete a ti mismo","La libertad radical","El absurdo de existir","La voluntad de crear","Ser o no ser","El mito de la caverna"],
+  arte:["El color como emoción","Belleza imperfecta","La forma sigue al sentir","Arte y caos","El lienzo en blanco","La luz en la sombra","Improvisación pura","El detalle invisible","Simetría rota","La obra inacabada"],
+  ciencia:["El efecto mariposa","La entropía del universo","Materia oscura","El origen del cosmos","Evolución constante","La curiosidad como motor","El método científico","Partículas cuánticas","Vida en otros mundos","El código genético"],
+  marketing:["Contar una historia","El poder de la marca","Menos es más","Conectar antes de vender","La primera impresión","Diseñar la experiencia","El cliente en el centro","Simplicidad que vende","Confianza como moneda","Ideas que se pegan"],
+  negocios:["Resolver un problema real","El riesgo calculado","Crecer con propósito","La ejecución importa","Pensar en grande","Fallar rápido, aprender rápido","El valor antes que el precio","Construir con constancia","Rodearte de los mejores","La paciencia estratégica"],
+  deportes:["La disciplina diaria","Superar el propio límite","El equipo sobre el yo","Perder para mejorar","La mente antes que el cuerpo","Constancia silenciosa","El último esfuerzo","Jugar con estrategia","Respirar y enfocar","La victoria se entrena"],
+  vida_sana:["Dormir es sanar","Menos ruido, más calma","Moverse cada día","Comer con conciencia","El silencio como descanso","Hidratarse con intención","Respirar profundo","Gratitud diaria","Caminar para pensar","Equilibrio, no perfección"],
+  tecnologia:["La inteligencia distribuida","Automatizar lo repetitivo","El futuro ya llegó","Datos que enseñan","Innovar con propósito","Lo simple escala","Conectar mundos digitales","Aprender de las máquinas","El código como lenguaje","Diseñar el mañana"]
+};
+const cats = Object.keys(DATA);
+const orbitEl = document.getElementById('orbit');
+const centerEl = document.getElementById('center');
+const centerText = document.getElementById('centerText');
+const trailEl = document.getElementById('trail');
+const resetBtn = document.getElementById('resetBtn');
+const overlay = document.getElementById('overlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalClose = document.getElementById('modalClose');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tags = [], path = [], rot = 0;
+
+function shuffle(arr){return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);}
+
+function pickPhrases(category, count){
+  let pool = [];
+  if(category){
+    const sameCount = Math.ceil(count*0.65);
+    pool = shuffle(DATA[category]).slice(0, sameCount).map(p=>({text:p, cat:category}));
+    const others = shuffle(cats.filter(c=>c!==category));
+    for(let i=pool.length;i<count;i++){
+      const c = others[i % others.length];
+      pool.push({text: shuffle(DATA[c])[0], cat:c});
+    }
+  } else {
+    pool = shuffle(cats).map(c=>({text: shuffle(DATA[c])[0], cat:c})).slice(0,count);
+  }
+  return shuffle(pool);
+}
+
+function clearTags(){
+  tags.forEach(t=>{ t.el.classList.remove('in'); setTimeout(()=>t.el.remove(), 500); });
+  tags = [];
+}
+
+function renderTags(category, excludeText){
+  clearTags();
+  const count = 6 + Math.floor(Math.random()*2);
+  const radius = window.innerWidth < 480 ? 105 : 150;
+  const phrases = pickPhrases(category, count+1).filter(p=>p.text!==excludeText).slice(0,count);
+  phrases.forEach((p,i)=>{
+    const angle = (360/phrases.length)*i + (Math.random()*18-9);
+    const el = document.createElement('div');
+    el.className = 'tag';
+    el.textContent = p.text;
+    el.tabIndex = 0;
+    el.setAttribute('role','button');
+    orbitEl.appendChild(el);
+    tags.push({el, angle, radius: radius + (Math.random()*18-9)});
+    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
+    attachTagEvents(el, p.text, p.cat);
+  });
+}
+
+function attachTagEvents(el, text, cat){
+  let pressTimer = null, longPressed = false;
+  const startPress = ()=>{
+    longPressed = false;
+    pressTimer = setTimeout(()=>{ longPressed = true; openSummary(text, cat); }, 480);
+  };
+  const cancelPress = ()=> clearTimeout(pressTimer);
+  el.addEventListener('pointerdown', startPress);
+  el.addEventListener('pointerup', ()=>{
+    clearTimeout(pressTimer);
+    if(!longPressed) selectTag(text, cat);
+  });
+  el.addEventListener('pointerleave', cancelPress);
+  el.addEventListener('pointercancel', cancelPress);
+  el.addEventListener('contextmenu', e=>e.preventDefault());
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectTag(text, cat); } });
+}
+
+function pulseCenter(){
+  centerEl.classList.remove('pulsing');
+  void centerEl.offsetWidth;
+  centerEl.classList.add('pulsing');
+}
+
+function renderTrail(){
+  trailEl.innerHTML = '';
+  path.forEach((p,i)=>{
+    const s = document.createElement('span');
+    s.textContent = p;
+    if(i===path.length-1) s.className = 'current';
+    trailEl.appendChild(s);
+    if(i<path.length-1){
+      const sep = document.createElement('span');
+      sep.textContent = '→';
+      trailEl.appendChild(sep);
+    }
+  });
+  trailEl.scrollLeft = trailEl.scrollWidth;
+}
+
+function selectTag(text, cat){
+  path.push(text);
+  pulseCenter();
+  centerText.classList.remove('flicker');
+  centerText.textContent = text;
+  renderTrail();
+  renderTags(cat, text);
+}
+
+function start(){
+  if(tags.length===0 && path.length===0){
+    centerText.classList.remove('flicker');
+    centerText.textContent = '';
+    pulseCenter();
+    renderTags(null, null);
+  }
+}
+
+function animate(){
+  rot += reduceMotion ? 0 : 0.03;
+  tags.forEach(t=>{
+    const rad = (t.angle+rot) * Math.PI/180;
+    const x = Math.cos(rad)*t.radius;
+    const y = Math.sin(rad)*t.radius;
+    t.el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+
+async function fetchSummary(topic, category){
+  const res = await fetch('/openrouter-summary', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ topic, category })
+  });
+  if(!res.ok) throw new Error('request failed');
+  const data = await res.json();
+  return data.summary;
+}
+
+async function openSummary(text, cat){
+  modalTitle.textContent = text;
+  modalBody.textContent = 'Profundizando…';
+  modalBody.classList.add('flicker');
+  overlay.classList.remove('hidden');
+  modalClose.focus();
+  try{
+    const summary = await fetchSummary(text, cat);
+    modalBody.textContent = summary;
+  }catch(err){
+    modalBody.textContent = 'No se pudo generar el resumen. Verificá que la función de Netlify y la variable OPENROUTER_API_KEY estén configuradas.';
+  }
+  modalBody.classList.remove('flicker');
+}
+
+function closeModal(){ overlay.classList.add('hidden'); }
+modalClose.addEventListener('click', closeModal);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+centerEl.addEventListener('click', start);
+centerEl.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); start();} });
+resetBtn.addEventListener('click', ()=>{
+  path = [];
+  renderTrail();
+  centerText.textContent = 'Pulsá';
+  centerText.classList.add('flicker');
+  clearTags();
+});
+</script>
+</body>
+</html>

@@ -1,9 +1,12 @@
 {
-  "name": "pulsethink",
-  "compatibility_date": "2026-09-26",
+  "name": "ia",
   "main": "worker.js",
+  "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
-  }
+  },
+  "kv_namespaces": [
+    { "binding": "CREDITS", "id": "28c58553103c44a98cd891ef753a1474" }
+  ]
 }

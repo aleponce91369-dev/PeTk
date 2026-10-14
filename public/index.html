@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PresagIA · Tu presagio de hoy</title>
-<meta name="description" content="Pulsá la luz y recibí tu presagio de hoy. Una lectura mística diaria, gratis.">
+<meta name="description" content="Elegí tu signo, pulsá la luz y recibí tu presagio de hoy. Una lectura mística diaria, gratis.">
 <meta name="theme-color" content="#07050f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500&family=Lora:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07050f;--bg2:#1c0f38;--fg:#f4ecff;--muted:#a396c4;--gold:#f0cd85;--orchid:#c084fc;--rose:#e879a8;}
+:root{--bg:#07050f;--bg2:#1c0f38;--fg:#f4ecff;--muted:#a396c4;--gold:#f0cd85;--orchid:#c084fc}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
 body{background:radial-gradient(ellipse at 50% 40%,var(--bg2),var(--bg) 72%);color:var(--fg);
@@ -25,22 +25,22 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;animation:tw 
 @keyframes tw{from{opacity:.35}to{opacity:1}}
 #app{position:relative;height:100%;display:flex;flex-direction:column}
 header{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem}
-h1{margin:0;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;font-size:1.35rem;letter-spacing:.02em;
+h1{margin:0;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;font-size:1.35rem;
   background:linear-gradient(90deg,var(--gold),var(--orchid));-webkit-background-clip:text;background-clip:text;color:transparent}
-#creditsBtn{background:#ffffff0d;border:1px solid #f0cd8540;color:var(--gold);height:2.2rem;padding:0 .9rem;
+#creditsBtn,#sign{background:#ffffff0d;border:1px solid #f0cd8540;color:var(--gold);height:2.2rem;padding:0 .9rem;
   border-radius:999px;font:inherit;font-size:.85rem;cursor:pointer}
-#creditsBtn:focus-visible,#orb:focus-visible,.btn:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+#sign option{background:#190d33;color:var(--fg)}
+#creditsBtn:focus-visible,#sign:focus-visible,#orb:focus-visible,.btn:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 1rem 1rem;min-height:0}
+#sign{margin-bottom:1.6rem}
 
-/* La luz */
 #orb{position:relative;width:min(64vw,15.5rem);aspect-ratio:1;border:0;background:none;padding:0;cursor:pointer;
   display:grid;place-items:center;color:#2b1346;font:inherit;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 #orb i{position:absolute;border-radius:50%;pointer-events:none}
 .halo{inset:-26%;background:conic-gradient(from 0deg,#8b5cf6,#e879a8,#f0cd85,#38bdf8,#8b5cf6);
   filter:blur(36px);opacity:.5;animation:spin 16s linear infinite}
 .ring{inset:-9%;border:1px dashed #f0cd8560;animation:spin 34s linear infinite}
-.ring::after{content:'';position:absolute;top:-3px;left:50%;width:6px;height:6px;border-radius:50%;
-  background:var(--gold);box-shadow:0 0 12px 2px var(--gold)}
+.ring::after{content:'';position:absolute;top:-3px;left:50%;width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px 2px var(--gold)}
 .ring.r2{inset:-2%;border:1px solid #c4b5fd45;animation:spin 22s linear infinite reverse}
 .ring.r2::after{background:var(--orchid);box-shadow:0 0 12px 2px var(--orchid);top:auto;bottom:-3px}
 .core{inset:6%;background:radial-gradient(circle at 38% 30%,#fff 0,#fff1cf 20%,#f0cd85 46%,#c084fc 78%,#7c3aed 100%);
@@ -53,35 +53,31 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 @keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
 #orbText{position:relative;text-align:center;font-family:'Fraunces',Georgia,serif;line-height:1.15;padding:0 1.6rem}
 #orbText b{display:block;font-size:1.2rem;font-weight:500;font-style:italic}
-#orbText small{display:block;margin-top:.3rem;font-family:'Lora',Georgia,serif;font-size:.8rem;opacity:.8;animation:blink 2.6s ease-in-out infinite}
+#orbText small{display:block;margin-top:.3rem;font-family:'Lora',Georgia,serif;font-size:.8rem;animation:blink 2.6s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:.85}50%{opacity:.25}}
 main.has #orb{width:min(34vw,8.5rem)}
 main.has #orbText b{font-size:.74rem}
 main.has #orbText small{font-size:.62rem}
 
-/* Lectura */
 #reading{max-width:30rem;width:100%;margin-top:1.8rem;padding:1.2rem 1.4rem;border:1px solid #f0cd8533;border-radius:1.1rem;
-  background:#ffffff0b;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-align:center;
-  max-height:42vh;overflow:auto;animation:rise .9s ease-out}
+  background:#ffffff0b;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-align:center;max-height:40vh;overflow:auto;animation:rise .9s ease-out}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 #tema{margin:0 0 .6rem;color:var(--gold);font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:1rem}
 #presagio{margin:0;font-size:1rem;line-height:1.65}
 
-/* Modal */
-#ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:1.5rem;
-  background:#05030bcc;transition:opacity .25s}
+#ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:#05030bcc;transition:opacity .25s}
 #ov.hide{opacity:0;pointer-events:none}
-#modal{position:relative;max-width:25rem;width:100%;padding:1.6rem;border-radius:1.1rem;background:#190d33;
-  border:1px solid #f0cd8540;box-shadow:0 20px 60px #000a}
+#modal{position:relative;max-width:25rem;width:100%;max-height:90vh;overflow:auto;padding:1.6rem;border-radius:1.1rem;background:#190d33;border:1px solid #f0cd8540;box-shadow:0 20px 60px #000a}
 #mClose{position:absolute;top:.6rem;right:.8rem;background:none;border:0;color:var(--muted);font-size:1.4rem;cursor:pointer}
 #mTitle{margin:0 0 .7rem;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;font-size:1.25rem;color:var(--gold)}
 #mBody{font-size:.92rem;line-height:1.55}
 #mBody p{margin:.5rem 0}
+#mBody hr{border:0;border-top:1px solid #c4b5fd30;margin:1rem 0}
+.code{display:block;margin:.3rem 0;padding:.5rem;text-align:center;font-size:1.3rem;letter-spacing:.15em;color:var(--gold);background:#ffffff0d;border-radius:.6rem;user-select:all}
 .btn{display:inline-block;margin:.4rem 0;padding:.65rem 1.1rem;border:0;border-radius:999px;cursor:pointer;
   background:linear-gradient(90deg,var(--gold),#e9a6ff);color:#2b1346;font:inherit;font-weight:500;font-size:.9rem;text-decoration:none}
-#op{width:100%;padding:.65rem .8rem;margin:.3rem 0;border-radius:.6rem;border:1px solid #c4b5fd40;
-  background:#ffffff0d;color:var(--fg);font:inherit}
-#msg{min-height:1.2rem;font-size:.82rem;color:var(--gold)}
+.inp{width:100%;padding:.65rem .8rem;margin:.3rem 0;border-radius:.6rem;border:1px solid #c4b5fd40;background:#ffffff0d;color:var(--fg);font:inherit}
+.msg{min-height:1.2rem;font-size:.82rem;color:var(--gold)}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -92,17 +88,19 @@ main.has #orbText small{font-size:.62rem}
     <button id="creditsBtn" aria-label="Mis presagios">🔮 <span id="cnt">–</span></button>
   </header>
   <main id="stage">
+    <select id="sign" aria-label="Tu signo">
+      <option value="">Elegí tu signo ✦</option>
+      <option>Aries</option><option>Tauro</option><option>Géminis</option><option>Cáncer</option>
+      <option>Leo</option><option>Virgo</option><option>Libra</option><option>Escorpio</option>
+      <option>Sagitario</option><option>Capricornio</option><option>Acuario</option><option>Piscis</option>
+    </select>
     <button id="orb" aria-label="Presagio de hoy, pulsar">
       <i class="halo"></i><i class="ring"></i><i class="ring r2"></i><i class="core"></i>
       <span id="orbText"><b>Presagio de hoy</b><small>(pulsar)</small></span>
     </button>
-    <section id="reading" hidden aria-live="polite">
-      <p id="tema"></p>
-      <p id="presagio"></p>
-    </section>
+    <section id="reading" hidden aria-live="polite"><p id="tema"></p><p id="presagio"></p></section>
   </main>
 </div>
-
 <div id="ov" class="hide">
   <div id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
     <button id="mClose" aria-label="Cerrar">×</button>
@@ -115,10 +113,14 @@ main.has #orbText small{font-size:.62rem}
 const $ = id => document.getElementById(id);
 const MP_LINK = 'https://mpago.la/1y7kKqE'; // ← pegá acá tu link de pago de $2000
 const IDLE = '<b>Presagio de hoy</b><small>(pulsar)</small>';
-let cr = { free: 0, paid: 0 }, busy = false;
+let cr = { free: 0, paid: 0, code: null }, busy = false;
 
 const setCr = c => { if (c) { cr = c; $('cnt').textContent = c.free + c.paid; } };
-fetch('/api/credits').then(r => r.json()).then(setCr).catch(() => {});
+const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+                set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+
+$('sign').value = store.get('signo') || '';
+$('sign').onchange = () => store.set('signo', $('sign').value);
 
 function showReading(tema, text) {
   $('tema').textContent = tema;
@@ -129,19 +131,32 @@ function showReading(tema, text) {
   $('stage').classList.add('has');
 }
 
+// Al abrir: créditos y, si ya pidió hoy, su presagio guardado
+fetch('/api/credits').then(r => r.json()).then(c => {
+  setCr(c);
+  if (c.last) {
+    if (!$('sign').value) $('sign').value = c.last.signo;
+    showReading('✦ ' + c.last.signo + ' · sobre ' + c.last.tema + ' ✦', c.last.text);
+  }
+}).catch(() => {});
+
 $('orb').onclick = async () => {
   if (busy) return;
+  if (!$('sign').value) { $('sign').focus(); showReading('✦ antes de empezar ✦', 'Elegí tu signo para que el presagio sea tuyo.'); return; }
   busy = true;
   const orb = $('orb');
   orb.classList.add('busy');
   $('orbText').innerHTML = '<b>Consultando…</b>';
   try {
-    const r = await fetch('/api/presagio', { method: 'POST' });
+    const r = await fetch('/api/presagio', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signo: $('sign').value })
+    });
     const d = await r.json().catch(() => ({}));
     if (r.status === 402) { setCr(d); openModal('Se agotaron tus 3 presagios de hoy. Se renuevan a medianoche, o conseguí 3 más ahora.'); return; }
-    if (!r.ok) throw new Error(d.error || 'Las estrellas están nubladas. Probá de nuevo.');
+    if (!r.ok) throw new Error((d.error || 'Las estrellas están nubladas. Probá de nuevo.') + (d.detail ? ' [' + d.detail + ']' : ''));
     setCr(d.credits);
-    showReading('✦ sobre ' + d.tema + ' ✦', d.presagio);
+    showReading('✦ ' + d.signo + ' · sobre ' + d.tema + ' ✦', d.presagio);
     orb.classList.add('burst'); setTimeout(() => orb.classList.remove('burst'), 800);
   } catch (e) {
     showReading('✦ las estrellas ✦', e.message);
@@ -152,28 +167,43 @@ $('orb').onclick = async () => {
   }
 };
 
-function openModal(msg) {
-  $('mTitle').textContent = 'Tus presagios';
+async function post(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return { ok: r.ok, d: await r.json().catch(() => ({})) };
+}
+
+function openModal(msg, title) {
+  $('mTitle').textContent = title || 'Tus presagios';
   $('mBody').innerHTML =
     '<p>' + msg + '</p>' +
+    (cr.code ? '<p>Tu código de recuperación (guardalo para usar tus presagios en otro dispositivo):</p><span class="code">' + cr.code + '</span>' : '') +
     '<a class="btn" href="' + MP_LINK + '" target="_blank" rel="noopener">Comprar 3 presagios · $2.000</a>' +
     '<p>Después de pagar, pegá tu número de operación:</p>' +
-    '<input id="op" inputmode="numeric" placeholder="Nº de operación" autocomplete="off">' +
-    '<button class="btn" id="vf">Verificar</button><p id="msg"></p>';
+    '<input class="inp" id="op" inputmode="numeric" placeholder="Nº de operación" autocomplete="off">' +
+    '<button class="btn" id="vf">Verificar</button><p class="msg" id="msg"></p>' +
+    '<hr><p>¿Ya compraste y cambiaste de celular? Ingresá tu código:</p>' +
+    '<input class="inp" id="rc" placeholder="XXXX-XXXX" autocomplete="off" autocapitalize="characters">' +
+    '<button class="btn" id="rv">Recuperar</button><p class="msg" id="msg2"></p>';
   $('ov').classList.remove('hide');
+
   $('vf').onclick = async () => {
     $('msg').textContent = 'Verificando…';
     try {
-      const r = await fetch('/api/redeem', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ operation: $('op').value })
-      });
-      const d = await r.json();
-      if (!r.ok) { $('msg').textContent = d.error || 'No se pudo verificar'; return; }
+      const { ok, d } = await post('/api/redeem', { operation: $('op').value });
+      if (!ok) { $('msg').textContent = d.error || 'No se pudo verificar'; return; }
       setCr(d);
-      $('mTitle').textContent = '¡Listo!';
-      $('mBody').textContent = 'Tus presagios ya están cargados. Pulsá la luz para recibir el tuyo.';
+      openModal('Tus presagios ya están cargados. Pulsá la luz para recibir el tuyo.', '¡Listo!');
     } catch { $('msg').textContent = 'Error de conexión. Probá de nuevo.'; }
+  };
+  $('rv').onclick = async () => {
+    $('msg2').textContent = 'Buscando…';
+    try {
+      const { ok, d } = await post('/api/recover', { code: $('rc').value });
+      if (!ok) { $('msg2').textContent = d.error || 'No se pudo recuperar'; return; }
+      setCr(d);
+      if (d.last) showReading('✦ ' + d.last.signo + ' · sobre ' + d.last.tema + ' ✦', d.last.text);
+      openModal('Recuperaste tus presagios. Pulsá la luz para recibir el tuyo.', 'Bienvenido de vuelta');
+    } catch { $('msg2').textContent = 'Error de conexión. Probá de nuevo.'; }
   };
 }
 

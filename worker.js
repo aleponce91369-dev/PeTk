@@ -60,7 +60,7 @@ async function presagio(req, env) {
       headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'openrouter/free',
-        max_tokens: 350,
+        max_tokens: 700,
         temperature: 0.9,
         messages: [
           {
